@@ -22,7 +22,13 @@ const DEFAULT_SETTINGS: ChatSettings = {
 
 // 获取聊天消息
 export const getChatMessages = (): Message[] => {
-  return getFromLocalStorage<Message[]>(STORAGE_KEYS.CHAT_MESSAGES, []);
+  const messages = getFromLocalStorage<any[]>(STORAGE_KEYS.CHAT_MESSAGES, []);
+  
+  // 将存储的ISO字符串转换回Date对象
+  return messages.map(msg => ({
+    ...msg,
+    timestamp: new Date(msg.timestamp),
+  }));
 };
 
 // 保存聊天消息
@@ -30,7 +36,7 @@ export const saveChatMessages = (messages: Message[]): void => {
   // 转换Date对象为ISO字符串以便存储
   const serializableMessages = messages.map(msg => ({
     ...msg,
-    timestamp: msg.timestamp.toISOString(),
+    timestamp: msg.timestamp instanceof Date ? msg.timestamp.toISOString() : msg.timestamp,
   }));
   
   saveToLocalStorage(STORAGE_KEYS.CHAT_MESSAGES, serializableMessages);

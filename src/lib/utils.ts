@@ -6,9 +6,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // 格式化时间戳为可读时间
-export const formatTime = (date: Date): string => {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
+export const formatTime = (date: Date | string): string => {
+  // 确保传入的是Date对象
+  const dateObj = date instanceof Date ? date : new Date(date);
+  
+  // 检查日期是否有效
+  if (isNaN(dateObj.getTime())) {
+    return '无效时间';
+  }
+  
+  const hours = dateObj.getHours().toString().padStart(2, '0');
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;
 }
 

@@ -18,14 +18,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
   });
   const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
 
-  // 可用的模型列表
+  // 智谱AI免费模型列表
   const availableModels = [
-    'GLM-4.1V-Thinking',
-    'GLM-4-Flash-250414',
-    'GLM-4V-Flash',
-    'GLM-Z1-Flash',
-    'CogView-3-Flash',
-    'CogVideoX-Flash',
+    { value: 'GLM-4.1V-Thinking', label: 'GLM-4.1V-Thinking (推荐)' },
+    { value: 'GLM-4-Flash-250414', label: 'GLM-4-Flash-250414' },
+    { value: 'GLM-4V-Flash', label: 'GLM-4V-Flash (多模态)' },
+    { value: 'GLM-Z1-Flash', label: 'GLM-Z1-Flash' },
+    { value: 'CogView-3-Flash', label: 'CogView-3-Flash (图像生成)' },
+    { value: 'CogVideoX-Flash', label: 'CogVideoX-Flash (视频生成)' },
   ];
 
   useEffect(() => {
@@ -135,7 +135,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
               className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              您可以在智谱清言官网获取API Key
+              您可以在智谱AI开放平台 (open.bigmodel.cn) 获取API Key
             </p>
           </div>
           
@@ -149,7 +149,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
               className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {availableModels.map(model => (
-                <option key={model} value={model}>{model}</option>
+                <option key={model.value} value={model.value}>{model.label}</option>
               ))}
             </select>
           </div>

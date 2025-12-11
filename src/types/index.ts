@@ -24,7 +24,28 @@ export interface ChatSettings {
   selectedPreset: string;
 }
 
-// API响应类型定义
+// 智谱AI API响应类型定义
+export interface ZhipuAPIResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string;
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
+// 兼容的API响应类型定义（保留向后兼容）
 export interface APIResponse {
   code: number;
   msg: string;
