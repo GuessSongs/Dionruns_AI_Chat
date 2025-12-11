@@ -19,23 +19,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
   const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
 
   // 智谱AI免费模型列表
-  const availableModels = [
-    { value: 'GLM-4.1V-Thinking', label: 'GLM-4.1V-Thinking (推荐)' },
-    { value: 'GLM-4-Flash-250414', label: 'GLM-4-Flash-250414' },
-    { value: 'GLM-4V-Flash', label: 'GLM-4V-Flash (多模态)' },
-    { value: 'GLM-Z1-Flash', label: 'GLM-Z1-Flash' },
-    { value: 'CogView-3-Flash', label: 'CogView-3-Flash (图像生成)' },
-    { value: 'CogVideoX-Flash', label: 'CogVideoX-Flash (视频生成)' },
+  const chatModels = [
+    { value: 'glm-4.1v-thinking-flash', label: 'GLM-4.1V-Thinking-Flash (免费版，推荐)' },
+    { value: 'glm-4v-flash', label: 'GLM-4V-Flash (免费多模态，仅支持图片URL)' },
+    { value: 'glm-4-flash-250414', label: 'GLM-4-Flash-250414 (免费)' },
+    { value: 'glm-z1-flash', label: 'GLM-Z1-Flash (免费，带推理过程)' },
   ];
 
+  const generativeModels = [
+    { value: 'cogview-3-flash', label: 'CogView-3-Flash (免费图像生成)' },
+    { value: 'cogvideox-flash', label: 'CogVideoX-Flash (免费视频生成)' },
+  ];
+
+  const allModels = [...chatModels, ...generativeModels];
+
   useEffect(() => {
-    setLocalSettings({ ...settings });
+    // 确保数值类型字段是正确的类型
+    const correctedSettings = {
+      ...settings,
+      maxTokens: typeof settings.maxTokens === 'string' ? parseInt(settings.maxTokens, 10) : settings.maxTokens,
+      temperature: typeof settings.temperature === 'string' ? parseFloat(settings.temperature) : settings.temperature
+    };
+    setLocalSettings(correctedSettings);
   }, [settings]);
 
   // 处理输入变化
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setLocalSettings(prev => ({ ...prev, [name]: value }));
+    
+    // 处理数值类型的字段
+    let processedValue: any = value;
+    if (name === 'maxTokens') {
+      processedValue = parseInt(value, 10);
+    } else if (name === 'temperature') {
+      processedValue = parseFloat(value);
+    }
+    
+    setLocalSettings(prev => ({ ...prev, [name]: processedValue }));
   };
 
   // 添加新预设
@@ -148,10 +168,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {availableModels.map(model => (
-                <option key={model.value} value={model.value}>{model.label}</option>
-              ))}
+              <optgroup label="对话模型">
+                {chatModels.map(model => (
+                  <option key={model.value} value={model.value}>{model.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="生成模型">
+                {generativeModels.map(model => (
+                  <option key={model.value} value={model.value}>{model.label}</option>
+                ))}
+              </optgroup>
             </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              对话模型用于聊天，生成模型用于创建图片和视频。选择不同模型会改变输入界面。
+            </p>
+            {localSettings.model === 'glm-4v-flash' && (
+              <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                  ⚠️ GLM-4V-Flash 不支持本地图片上传，仅支持图片URL。如需上传本地图片，请考虑使用付费模型或先将图片上传到图床服务。
+                </p>
+              </div>
+            )}
           </div>
           
           {/* 温度参数 */}
@@ -170,7 +207,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
               className="w-full"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              控制生成内容的随机性，值越高越随机，值越低越确定
+              控制输出随机性，范围[0.0-1.0]，默认0.8。值越高越随机创造，值越低越稳定确定。
             </p>
           </div>
           
@@ -183,11 +220,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, 
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value={512}>512 tokens</option>
-              <option value={1024}>1024 tokens</option>
+              <option value={1024}>1024 tokens (推荐)</option>
               <option value={2048}>2048 tokens</option>
               <option value={4096}>4096 tokens</option>
+              <option value={8192}>8192 tokens</option>
+              <option value={16384}>16384 tokens (最大)</option>
             </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              最大支持16K输出长度，建议不小于1024
+            </p>
           </div>
           
           {/* 人设预设 */}

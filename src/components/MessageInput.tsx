@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 interface MessageInputProps {
   inputValue: string;
   setInputValue: (value: string) => void;
-  onSendMessage: () => void;
+  onSendMessage: (files?: FilePreview[]) => void;
   isLoading: boolean;
 }
 
@@ -48,7 +48,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     // Enter发送消息
     if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
       e.preventDefault();
-      onSendMessage();
+      handleSend();
     }
   };
 
@@ -105,7 +105,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
   // 发送消息
   const handleSend = () => {
-    onSendMessage();
+    if (!inputValue.trim() && filePreviews.length === 0) return;
+    
+    // 传递文件信息给父组件
+    onSendMessage(filePreviews.length > 0 ? filePreviews : undefined);
     // 清空文件预览
     filePreviews.forEach(preview => URL.revokeObjectURL(preview.url));
     setFilePreviews([]);

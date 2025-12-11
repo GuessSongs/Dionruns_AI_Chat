@@ -1,6 +1,7 @@
 import { Message } from '@/types';
 import { formatTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { Paperclip } from 'lucide-react';
 
 interface MessageListProps {
   messages: Message[];
@@ -39,7 +40,50 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading })
                   : 'bg-gray-100 dark:bg-gray-700'
               }`}
             >
-              <p className="whitespace-pre-wrap">{message.content}</p>
+              {/* 显示文件 */}
+              {message.files && message.files.length > 0 && (
+                <div className="mb-2 space-y-2">
+                  {message.files.map((file, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      {file.type === 'image' ? (
+                        <img 
+                          src={file.url} 
+                          alt={file.name}
+                          className="max-w-48 max-h-48 rounded-lg object-cover cursor-pointer"
+                          onClick={() => window.open(file.url, '_blank')}
+                        />
+                      ) : file.name.includes('.mp4') || file.name.includes('视频') ? (
+                        <video 
+                          src={file.url}
+                          controls
+                          className="max-w-64 max-h-48 rounded-lg"
+                          poster=""
+                        >
+                          您的浏览器不支持视频播放
+                        </video>
+                      ) : (
+                        <div className="flex items-center gap-2 p-2 bg-black/10 rounded">
+                          <Paperclip size={16} />
+                          <span className="text-sm">{file.name}</span>
+                          <a 
+                            href={file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-600 text-xs"
+                          >
+                            查看
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* 显示文本内容 */}
+              {message.content && (
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              )}
             </div>
             
             {/* 时间戳 */}
